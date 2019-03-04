@@ -1,0 +1,22 @@
+# Start from a Java image.
+FROM java:8
+ARG version
+# Rocketmq version
+ENV ROCKETMQ_VERSION 4.4.0
+# Rocketmq home
+ENV ROCKETMQ_HOME  /opt/rocketmq-${ROCKETMQ_VERSION}
+WORKDIR  ${ROCKETMQ_HOME}
+RUN mkdir -p \
+        /opt/logs \
+        /opt/store \
+        /opt/conf
+ADD rocketmq-all-4.4.0-bin-release.zip rocketmq.zip
+RUN       unzip rocketmq.zip \
+          && rm rocketmq.zip \
+          && cp -r rocketmq-all-4.4.0-bin-release/* ./
+RUN chmod +x bin/mqnamesrv
+CMD cd ${ROCKETMQ_HOME}/bin && export JAVA_OPT=" -Duser.home=/opt" && sh mqnamesrv
+EXPOSE 9876
+VOLUME /opt/logs \
+        /opt/store \
+        /opt/conf

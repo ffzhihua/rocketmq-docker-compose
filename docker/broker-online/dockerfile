@@ -1,0 +1,28 @@
+# Start from a Java image.
+FROM java:8
+
+# Rocketmq version
+ENV ROCKETMQ_VERSION 4.4.0
+
+# Rocketmq home
+ENV ROCKETMQ_HOME  /opt/rocketmq-${ROCKETMQ_VERSION}
+
+WORKDIR  ${ROCKETMQ_HOME}
+
+RUN mkdir -p \
+        /opt/logs \
+        /opt/store
+
+ADD rocketmq-all-4.4.0-bin-release.zip rocketmq.zip
+RUN       unzip rocketmq.zip \
+          && rm rocketmq.zip \ 
+          && cp -r rocketmq-all-4.4.0-bin-release/* ./
+
+RUN chmod +x bin/mqbroker
+
+CMD cd ${ROCKETMQ_HOME}/bin && export JAVA_OPT=" -Duser.home=/opt" && sh mqbroker -n namesrv:9876 -c /opt/conf/broker.properties 
+
+EXPOSE 10909 10911
+VOLUME /opt/logs \
+        /opt/store \
+        /opt/conf

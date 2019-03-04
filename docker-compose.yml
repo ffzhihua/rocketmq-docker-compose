@@ -1,0 +1,39 @@
+version: '2.1'
+services:
+  namesrv:
+    image: autumn/rocketmq-namesrv:latest
+    ports:
+      - 9876:9876
+    volumes:
+      - "./logs/namesrv/master/logs:/opt/logs"
+      - "./data/namesrv/master/stor:/opt/store"
+  broker-a-m:
+    image: autumn/rocketmq-broker:latest
+    ports:
+      - 10909:10909
+      - 10911:10911
+    volumes:
+      - "./logs/broker/a-m/logs:/opt/logs"
+      - "./data/broker/a-m/stor:/opt/store"
+      - "./conf/broker/a-m/conf:/opt/conf"
+    links:
+      - namesrv:namesrv
+  broker-a-s:
+    image: autumn/rocketmq-broker:latest
+    ports:
+      - 11909:11909
+      - 11911:11911
+    volumes:
+      - "./logs/broker/a-s/logs:/opt/logs"
+      - "./data/broker/a-s/stor:/opt/store"
+      - "./conf/broker/a-s/conf:/opt/conf"
+    links:
+      - namesrv:namesrv      
+  console:
+    image: autumn/rocketmq-console-ng:latest
+    ports:
+     - "8087:8080"
+    links:
+     - namesrv:namesrv
+    environment:
+     JAVA_OPTS: -Drocketmq.config.namesrvAddr=namesrv:9876 #-Dcom.rocketmq.sendMessageWithVIPChannel=false
